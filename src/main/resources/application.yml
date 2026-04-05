@@ -8,8 +8,8 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb+srv://skillbridge:skillbridge123@cluster0.kgnridy.mongodb.net/
-      database: skillbridge
+      uri: "mongodb+srv://${env.MONGO_USER}:${env.MONGO_PASSWORD}@${env.MONGO_CLUSTER}"
+      database: "${env.MONGO_DATABASE}"
 
   thymeleaf:
     cache: false
