@@ -1,0 +1,145 @@
+<!-- src/main/resources/templates/mentor/dashboard.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mentor Dashboard – SkillBridge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-success">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="/">🎓 SkillBridge – Mentor</a>
+        <div class="ms-auto d-flex gap-2">
+      <span class="text-white align-self-center"
+            th:text="'Hello, ' + ${mentor.name}"></span>
+            <a href="/mentor/profile" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-person-circle"></i> Profile
+            </a>
+            <a href="/auth/logout" class="btn btn-outline-light btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid py-4">
+    <!-- Alerts -->
+    <div th:if="${param.profileSaved}" class="alert alert-success alert-dismissible fade show">
+        ✅ Profile saved! Awaiting admin approval.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${param.completed}" class="alert alert-success alert-dismissible fade show">
+        🏆 Session completed! Certificate has been generated.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Profile status banner -->
+    <div th:if="${profile != null}" class="alert py-2"
+         th:classappend="${profile.status.name() == 'APPROVED'} ? 'alert-success' :
+                        (${profile.status.name() == 'PENDING'} ? 'alert-warning' : 'alert-danger')">
+        <i class="bi bi-info-circle me-2"></i>
+        Profile Status: <strong th:text="${profile.status}"></strong>
+        <span th:if="${profile.status.name() == 'PENDING'}">
+      – Your profile is under review by admin.
+    </span>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow-sm text-center p-3">
+                <h2 class="fw-bold" th:text="${sessions.size()}">0</h2>
+                <p class="mb-0">Total Sessions</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow-sm text-center p-3">
+                <h2 class="fw-bold"
+                    th:text="${profile != null ? #numbers.formatDecimal(profile.avgRating,1,1) : '–'}">0.0</h2>
+                <p class="mb-0">Avg Rating</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning shadow-sm text-center p-3">
+                <h2 class="fw-bold"
+                    th:text="${profile != null ? profile.totalReviews : 0}">0</h2>
+                <p class="mb-0">Reviews</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sessions -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white fw-bold fs-5">
+            <i class="bi bi-calendar2-week me-2"></i> My Sessions
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${sessions.empty}" class="p-4 text-muted text-center">
+                No sessions yet. Complete your
+                <a href="/mentor/profile">profile</a> to get discovered.
+            </div>
+            <table th:unless="${sessions.empty}" class="table table-hover mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Topic</th>
+                    <th>Learner</th>
+                    <th>Scheduled</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${sessions}">
+                    <td th:text="${s.topic}"></td>
+                    <td th:text="${s.learnerId}"></td>
+                    <td th:text="${#temporals.format(s.scheduledAt,'dd MMM yyyy HH:mm')}"></td>
+                    <td th:text="${s.durationMinutes} + ' min'"></td>
+                    <td>
+              <span class="badge"
+                    th:classappend="${s.status.name() == 'CONFIRMED'} ? 'bg-success' :
+                                     (${s.status.name() == 'PENDING'}  ? 'bg-warning text-dark' :
+                                     (${s.status.name() == 'COMPLETED'}? 'bg-secondary' :
+                                      'bg-danger'))"
+                    th:text="${s.status}"></span>
+                    </td>
+                    <td>
+                        <!-- Confirm -->
+                        <form th:if="${s.status.name() == 'PENDING'}"
+                              th:action="@{/mentor/session/{id}/confirm(id=${s.id})}"
+                              method="post" class="d-inline">
+                            <button class="btn btn-sm btn-success">
+                                <i class="bi bi-check2"></i> Confirm
+                            </button>
+                        </form>
+                        <!-- Complete -->
+                        <form th:if="${s.status.name() == 'CONFIRMED'}"
+                              th:action="@{/mentor/session/{id}/complete(id=${s.id})}"
+                              method="post" class="d-inline">
+                            <button class="btn btn-sm btn-primary">
+                                <i class="bi bi-flag-fill"></i> Complete
+                            </button>
+                        </form>
+                        <!-- Join Video -->
+                        <a th:if="${s.meetingLink != null and s.status.name() == 'CONFIRMED'}"
+                           th:href="${s.meetingLink}" target="_blank"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-camera-video"></i> Join
+                        </a>
+                        <!-- Download Certificate -->
+                        <a th:if="${s.status.name() == 'COMPLETED'}"
+                           th:href="@{/mentor/certificate/{id}/download(id=${s.id})}"
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-download"></i> Cert
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div><!-- /container -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

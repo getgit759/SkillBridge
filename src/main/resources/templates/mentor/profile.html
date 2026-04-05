@@ -1,0 +1,64 @@
+<!-- src/main/resources/templates/mentor/profile.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile – SkillBridge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark bg-success">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="/">🎓 SkillBridge</a>
+        <a href="/mentor/dashboard" class="btn btn-outline-light btn-sm ms-auto">← Back</a>
+    </div>
+</nav>
+
+<div class="container py-4" style="max-width:700px">
+    <h3 class="fw-bold mb-4">👨‍💼 Edit Mentor Profile</h3>
+    <div class="card shadow-sm p-4">
+        <form th:action="@{/mentor/profile}" th:object="${profileDTO}" method="post">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Bio</label>
+                <textarea th:field="*{bio}" class="form-control" rows="3"
+                          placeholder="Tell learners about yourself..."></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Skills (comma separated)</label>
+                <input type="text" class="form-control" name="skillsRaw"
+                       th:value="${#strings.listJoin(profileDTO.skills, ', ')}"
+                       placeholder="Java, Spring Boot, MongoDB, React">
+                <div class="form-text">Enter your skills separated by commas.</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Hourly Rate ($)</label>
+                    <input type="number" th:field="*{hourlyRate}" class="form-control"
+                           min="0" step="0.5">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Experience (years)</label>
+                    <input type="number" th:field="*{experienceYears}" class="form-control" min="0">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">LinkedIn URL</label>
+                <input type="url" th:field="*{linkedIn}" class="form-control"
+                       placeholder="https://linkedin.com/in/yourprofile">
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Availability (comma separated slots)</label>
+                <input type="text" class="form-control" name="availabilityRaw"
+                       th:value="${#strings.listJoin(profileDTO.availability, ', ')}"
+                       placeholder="MON_10:00, WED_14:00, FRI_16:00">
+                <div class="form-text">Format: DAY_HH:MM (e.g. MON_09:00)</div>
+            </div>
+            <button type="submit" class="btn btn-success w-100 fw-bold">
+                💾 Save Profile
+            </button>
+        </form>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

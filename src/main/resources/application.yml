@@ -1,0 +1,56 @@
+server:
+  port: 8080
+  address: 0.0.0.0   # ← add this line
+
+spring:
+  application:
+    name: SkillBridge
+
+  data:
+    mongodb:
+      uri: mongodb+srv://skillbridge:skillbridge123@cluster0.kgnridy.mongodb.net/
+      database: skillbridge
+
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: your-email@gmail.com
+    password: your-app-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# JWT Configuration
+jwt:
+  secret: skillbridge-super-secret-key-for-jwt-signing-must-be-64-characters-minimum-2024
+  expiration: 86400000
+
+# Jitsi video calls (no credentials needed)
+jitsi:
+  base-url: https://meet.jit.si
+
+# Video provider
+video:
+  provider: jitsi
+
+# Certificate output directory
+certificate:
+  output-dir: ./certificates
+
+# Admin seed credentials
+admin:
+  email: admin@skillbridge.com
+  password: Admin@123
+
+logging:
+  level:
+    com.skillbridge: DEBUG
+    org.springframework.security: INFO
